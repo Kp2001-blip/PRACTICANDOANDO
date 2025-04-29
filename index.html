@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Super Reto Infantil 🐶🎈</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(to bottom, #ffe4b5, #ffb6c1);
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 40px;
+      color: #ff4500;
+      margin-bottom: 10px;
+    }
+    #question {
+      font-size: 30px;
+      margin: 20px 0;
+      color: #ff1493;
+    }
+    .option {
+      background: #00ced1;
+      color: white;
+      padding: 15px 30px;
+      margin: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      border-radius: 20px;
+      transition: transform 0.2s;
+    }
+    .option:hover {
+      background: #20b2aa;
+      transform: scale(1.1);
+    }
+    #score, #lives, #level {
+      margin-top: 15px;
+      font-size: 24px;
+      color: #8b0000;
+    }
+    #result {
+      font-size: 32px;
+      margin-top: 40px;
+      color: #008000;
+    }
+    #game-image {
+      margin-top: 20px;
+      width: 250px;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+    }
+    #restart-btn {
+      display: none;
+      margin-top: 30px;
+      padding: 15px 30px;
+      font-size: 24px;
+      background: #32cd32;
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+    #restart-btn:hover {
+      background: #228b22;
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎉 ¡Super Reto Infantil! 🎉</h1>
+
+  <div id="level">Nivel: 1</div>
+  <div id="lives">Vidas: ❤️❤️❤️</div>
+  <div id="score">Puntos: 0</div>
+
+  <img id="game-image" src="" alt="Imagen divertida">
+
+  <div id="question"></div>
+
+  <div id="options"></div>
+
+  <div id="result"></div>
+  <button id="restart-btn" onclick="reiniciarJuego()">🔄 Volver a jugar</button>
+
+  <script>
+    const preguntas = [
+      { 
+        pregunta: "¿De qué color es el cielo?", 
+        opciones: ["Verde", "Azul", "Rojo"], 
+        respuesta: 1,
+        imagen: "https://upload.wikimedia.org/wikipedia/commons/6/60/Blue_sky_and_white_clouds.jpg"
+      },
+      { 
+        pregunta: "¿Cuántas patas tiene un perro?", 
+        opciones: ["Cuatro", "Seis", "Dos"], 
+        respuesta: 0,
+        imagen: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg"
+      },
+      { 
+        pregunta: "¿Qué fruta es amarilla?", 
+        opciones: ["Banana", "Manzana", "Uva"], 
+        respuesta: 0,
+        imagen: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Banana-Single.jpg"
+      },
+      { 
+        pregunta: "¿Qué animal dice 'miau'?", 
+        opciones: ["Perro", "Gato", "Pájaro"], 
+        respuesta: 1,
+        imagen: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg"
+      },
+      { 
+        pregunta: "¿Qué usamos para escribir?", 
+        opciones: ["Martillo", "Lápiz", "Cuchara"], 
+        respuesta: 1,
+        imagen: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Pencil2.jpg"
+      },
+      { 
+        pregunta: "¿Cuál es un medio de transporte?", 
+        opciones: ["Avión", "Manzana", "Árbol"], 
+        respuesta: 0,
+        imagen: "https://upload.wikimedia.org/wikipedia/commons/6/62/Airplane_in_flight.jpg"
+      },
+      { 
+        pregunta: "¿Qué usamos para comer sopa?", 
+        opciones: ["Tenedor", "Cuchara", "Cuchillo"], 
+        respuesta: 1,
+        imagen: "https://upload.wikimedia.org/wikipedia/commons/b/b7/Soup_spoon.jpg"
+      },
+      { 
+        pregunta: "¿Cuál es el rey de la selva?", 
+        opciones: ["Elefante", "León", "Mono"], 
+        respuesta: 1,
+        imagen: "https://upload.wikimedia.org/wikipedia/commons/7/73/Lion_waiting_in_Namibia.jpg"
+      }
+    ];
+
+    let indicePregunta = 0;
+    let puntos = 0;
+    let vidas = 3;
+    let nivel = 1;
+    let correctasSeguidas = 0;
+
+    function actualizarPantalla() {
+      document.getElementById("score").innerText = "Puntos: " + puntos;
+      document.getElementById("lives").innerText = "Vidas: " + "❤️".repeat(vidas);
+      document.getElementById("level").innerText = "Nivel: " + nivel;
+    }
+
+    function mostrarPregunta() {
+      if (indicePregunta >= preguntas.length) {
+        finalizarJuego();
+        return;
+      }
+      
+      const actual = preguntas[indicePregunta];
+      document.getElementById("question").innerText = actual.pregunta;
+      document.getElementById("game-image").src = actual.imagen;
+
+      const opcionesDiv = document.getElementById("options");
+      opcionesDiv.innerHTML = "";
+
+      actual.opciones.forEach((opcion, i) => {
+        const boton = document.createElement("button");
+        boton.className = "option";
+        boton.innerText = opcion;
+        boton.onclick = () => verificarRespuesta(i);
+        opcionesDiv.appendChild(boton);
+      });
+
+      actualizarPantalla();
+    }
+
+    function verificarRespuesta(seleccionada) {
+      if (seleccionada === preguntas[indicePregunta].respuesta) {
+        puntos += 2;
+        correctasSeguidas++;
+        alert("✅ ¡Muy bien!");
+      } else {
+        vidas--;
+        correctasSeguidas = 0;
+        alert("❌ Ups... ¡Inténtalo de nuevo!");
+      }
+
+      if (correctasSeguidas >= 3) {
+        nivel++;
+        correctasSeguidas = 0;
+      }
+
+      indicePregunta++;
+
+      if (vidas <= 0) {
+        document.getElementById("result").innerText = "😢 ¡Te quedaste sin vidas! ¡Sigue practicando!";
+        terminarJuego();
+      } else {
+        mostrarPregunta();
+      }
+    }
+
+    function finalizarJuego() {
+      document.getElementById("result").innerText = "🏁 ¡Juego terminado! Puntos: " + puntos + " | Nivel alcanzado: " + nivel;
+      terminarJuego();
+    }
+
+    function terminarJuego() {
+      document.getElementById("options").innerHTML = "";
+      document.getElementById("question").innerHTML = "";
+      document.getElementById("game-image").style.display = "none";
+      document.getElementById("restart-btn").style.display = "inline-block";
+    }
+
+    function reiniciarJuego() {
+      indicePregunta = 0;
+      puntos = 0;
+      vidas = 3;
+      nivel = 1;
+      correctasSeguidas = 0;
+      document.getElementById("restart-btn").style.display = "none";
+      document.getElementById("game-image").style.display = "block";
+      document.getElementById("result").innerText = "";
+      mostrarPregunta();
+    }
+
+    mostrarPregunta();
+  </script>
+
+</body>
+</html>
+
+
